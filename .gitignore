@@ -61,3 +61,11 @@ buck-out/
 # Expo
 .expo/*
 web-build/
+
+# eslint
+.eslintignore
+.eslintrc.js
+.eslintrc.json
+
+# prettierrc
+.prettierrc.json
