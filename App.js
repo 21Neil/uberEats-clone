@@ -1,12 +1,6 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import Home from './screens/Home';
+import RootNavigation from './navigation';
 
 export default function App() {
-  return (
-    <SafeAreaProvider>
-      <Home />
-    </SafeAreaProvider>
-  );
+  return <RootNavigation />;
 }

@@ -1,10 +1,17 @@
-import React from 'react'
-import { View, Text } from 'react-native'
+import React from 'react';
+import { View, Text } from 'react-native';
+import { Divider } from 'react-native-elements/dist/divider/Divider';
+import About from '../components/restaurantDetail/About';
+import MenuItems from '../components/restaurantDetail/MenuItems';
+import ViewCart from '../components/restaurantDetail/ViewCart';
 
-export default function RestaurantDetail() {
-    return (
-        <View>
-            <Text>Restaurant</Text>
-        </View>
-    )
+export default function RestaurantDetail({ route, navigation }) {
+  return (
+    <View style={{ flex: 1 }}>
+      <About route={route} />
+      <Divider width={2} />
+      <MenuItems />
+      <ViewCart navigation={navigation} restaurantName={route.params.name} />
+    </View>
+  );
 }

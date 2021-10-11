@@ -10,7 +10,7 @@ import BottomTabs from '../components/home/BottomTabs';
 const YELP_API_KEY =
   'RbxA65XLb9nIvFTp_cTB5aV9-tf723aJtpjdXXE4OK1wD18iyHz3P6fhkHWq5-2raWx8FugL7jp-QWkqVEKR4PR_gnWBAZmFPVH7E2QnYqAVangeQ2hgEyOK-mNdYXYx';
 
-export default function Home() {
+export default function Home({ navigation }) {
   const [restaurantData, setRestaurantData] = useState([]);
   const [city, setCity] = useState('Taipei');
   const [activeTab, setActiveTab] = useState('Delivery');
@@ -28,8 +28,8 @@ export default function Home() {
       .then((res) => res.json())
       .then((json) =>
         setRestaurantData(
-          json.businesses//.filter((business) =>
-            //business.transactions.includes(activeTab.toLowerCase())
+          json.businesses //.filter((business) =>
+          //business.transactions.includes(activeTab.toLowerCase())
           //)
         )
       );
@@ -42,12 +42,12 @@ export default function Home() {
   return (
     <SafeAreaView style={{ backgroundColor: '#eee', flex: 1 }}>
       <View style={{ backgroundColor: 'white', padding: 15 }}>
-        <HeaderTab activeTab={activeTab} setActiveTab={setActiveTab}/>
-        <SearchBar cityHandler={setCity} />        
+        <HeaderTab activeTab={activeTab} setActiveTab={setActiveTab} />
+        <SearchBar cityHandler={setCity} />
       </View>
       <ScrollView showsVerticalScrollIndicator={false}>
         <Categories />
-        <RestaurantItems restaurantData={restaurantData} />
+        <RestaurantItems restaurantData={restaurantData} navigation={navigation} />
       </ScrollView>
       <BottomTabs />
     </SafeAreaView>
