@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, ScrollView } from 'react-native';
 import { Divider } from 'react-native-elements';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import { useDispatch, useSelector } from 'react-redux';
 
 const foods = [
   {
@@ -52,11 +53,28 @@ const styles = StyleSheet.create({
   },
 
   descriptionStyle: {
-    fontSize: 13
-  }
+    fontSize: 13,
+  },
 });
 
-export default function MenuItem() {
+export default function MenuItem({ restaurantName }) {
+  const disPatch = useDispatch();
+
+  const selectItem = (item, checkboxValue) =>
+    disPatch({
+      type: 'ADD_TO_CART',
+      payload: {
+        ...item,
+        restaurantName: restaurantName,
+        checkboxValue: checkboxValue,
+      },
+    });
+
+  const cartItems = useSelector((state) => state.cartReducer.selectedItems.items);
+
+  const isFoodInCart = (food, cartItems) =>
+    Boolean(cartItems.find((item) => item.title === food.title));
+    
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       {foods.map((food, index) => (
@@ -65,6 +83,8 @@ export default function MenuItem() {
             <BouncyCheckbox
               iconStyle={{ borderColor: 'lightgray', borderRadius: 3 }}
               fillColor="green"
+              onPress={(checkboxValue) => selectItem(food, checkboxValue)}
+              isChecked={isFoodInCart(food, cartItems)}
             />
             <FoodInfo food={food} />
             <FoodImage food={food} />
@@ -72,6 +92,7 @@ export default function MenuItem() {
           <Divider width={0.5} style={{ marginHorizontal: 15 }} />
         </View>
       ))}
+      <View style={{ height: 100 }}></View>
     </ScrollView>
   );
 }
@@ -79,16 +100,13 @@ export default function MenuItem() {
 const FoodInfo = (props) => (
   <View style={{ width: '55%', justifyContent: 'space-evenly' }}>
     <Text style={styles.titleStyle}>{props.food.title}</Text>
-    <Text style={ styles.descriptionStyle }>{props.food.description}</Text>
+    <Text style={styles.descriptionStyle}>{props.food.description}</Text>
     <Text>{props.food.price}</Text>
   </View>
 );
 
 const FoodImage = (props) => (
   <View>
-    <Image
-      source={{ uri: props.food.image }}
-      style={{ width: 80, height: 80, borderRadius: 8 }}
-    />
+    <Image source={{ uri: props.food.image }} style={{ width: 80, height: 80, borderRadius: 8 }} />
   </View>
 );
