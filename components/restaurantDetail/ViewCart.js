@@ -1,9 +1,13 @@
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
+import OrderItem from './OrderItem';
+import firebase from '../../firebase';
 
-export default function ViewCart() {
-  const items = useSelector((state) => state.cartReducer.selectedItems.items);
+export default function ViewCart({ navigation }) {
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const { items, restaurantName } = useSelector((state) => state.cartReducer.selectedItems);
 
   const total =
     'NT$' +
@@ -11,10 +15,102 @@ export default function ViewCart() {
       .map((item) => Number(item.price.replace('NT$', '')))
       .reduce((prev, curr) => prev + curr, 0);
 
-  console.log(total);
+  const addOrderToFireBase = () => {
+    const db = firebase.firestore();
+    db.collection('orders').add({
+      items: items,
+      restaurantName: restaurantName,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    setModalVisible(false);
+    navigation.navigate('OrderCompleted');
+  };
+
+  const style = StyleSheet.create({
+    modalContainer: {
+      flex: 1,
+      justifyContent: 'flex-end',
+      backgroundColor: 'rgba(0,0,0,0.7)',
+    },
+
+    modalCheckoutContainer: {
+      backgroundColor: 'white',
+      padding: 16,
+      height: 500,
+      borderWidth: 1,
+    },
+
+    restaurantName: {
+      textAlign: 'center',
+      fontWeight: '700',
+      fontSize: 18,
+      marginBottom: 10,
+    },
+
+    subtotalContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      marginTop: 15,
+    },
+
+    subtotalText: {
+      textAlign: 'left',
+      fontWeight: '700',
+      fontSize: 15,
+      marginBottom: 10,
+    },
+  });
+
+  const checkoutModalContent = () => {
+    return (
+      <View style={style.modalContainer}>
+        <View style={style.modalCheckoutContainer}>
+          <Text style={style.restaurantName}>{restaurantName}</Text>
+          {items.map((item, index) => (
+            <OrderItem key={index} item={item} />
+          ))}
+          <View style={style.subtotalContainer}>
+            <Text style={style.subtotalText}>Subtotal</Text>
+            <Text>{total}</Text>
+          </View>
+          <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                backgroundColor: 'black',
+                alignItems: 'center',
+                padding: 10,
+                borderRadius: 30,
+                width: 230,
+                position: 'relative',
+              }}
+              onPress={() => {
+                addOrderToFireBase();
+              }}
+            >
+              <Text style={{ color: 'white', fontSize: 16 }}>Checkout</Text>
+              <Text
+                style={{ position: 'absolute', color: 'white', right: 14, top: 12, fontSize: 14 }}
+              >
+                {total}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <>
+      <Modal
+        animation="slide"
+        visible={modalVisible}
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        {checkoutModalContent()}
+      </Modal>
       {total !== 'NT$0' ? (
         <View
           style={{
@@ -37,15 +133,20 @@ export default function ViewCart() {
             <TouchableOpacity
               style={{
                 backgroundColor: 'black',
-                flexDirection: 'row',
-                justifyContent: 'flex-end',
                 padding: 10,
                 borderRadius: 30,
                 width: 230,
+                alignItems: 'center',
+                position: 'relative',
               }}
+              onPress={() => setModalVisible(true)}
             >
-              <Text style={{ color: 'white', fontSize: 16, marginRight: 25 }}>View Cart</Text>
-              <Text style={{ color: 'white', fontSize: 16 }}>{total}</Text>
+              <Text style={{ color: 'white', fontSize: 16 }}>View Cart</Text>
+              <Text
+                style={{ position: 'absolute', color: 'white', right: 14, top: 12, fontSize: 14 }}
+              >
+                {total}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
